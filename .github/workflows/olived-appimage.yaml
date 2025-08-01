@@ -83,7 +83,8 @@ jobs:
           --appdir AppDir \
           -e AppDir/usr/bin/OlivedPro_web \
           --exclude-library libc.so.6 \
-          --exclude-library ld-linux-x86-64.so.2
+          --exclude-library ld-linux-x86-64.so.2 \
+          --exclude-library libwebkit2gtk-4.0.so.37
 
     - name: Create AppImage
       run: |
