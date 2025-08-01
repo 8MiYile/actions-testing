@@ -1,0 +1,90 @@
+name: Build OlivedPro AppImage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-appimage:
+    runs-on: ubuntu-latest # 使用高版本系统获取新版 libc6
+    env:
+      APP_NAME: OlivedPro
+      OUTPUT_DIR: dist
+    
+    steps:
+    - name: Set up environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y tidy unzip
+        
+    - name: Download linuxdeploy and appimagetool
+      run: |
+        wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+        chmod +x linuxdeploy*.AppImage appimagetool*.AppImage
+        
+    - name: Find and download latest binary
+      run: |
+        # 获取下载页面并解析下载链接
+        curl -sL "https://drive.olived.app/share/661b6145579df/" | tidy -q -asxml 2>/dev/null | \
+        grep -oP 'href="\K/share/661b6145579df/OlivedPro_web[^"]*_linux_amd64\.zip' | \
+        head -1 | awk '{print "https://drive.olived.app"$1}' > download_url.txt
+        
+        DOWNLOAD_URL=$(cat download_url.txt)
+        echo "Download URL: $DOWNLOAD_URL"
+        
+        # 下载并解压二进制文件
+        wget "$DOWNLOAD_URL" -O olivedpro.zip
+        unzip olivedpro.zip -d binary
+        chmod +x binary/OlivedPro_web
+        
+        # 获取版本号用于命名
+        VERSION=$(basename "$DOWNLOAD_URL" | grep -oP 'OlivedPro_web_\K[0-9.]+')
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        
+    - name: Prepare AppDir
+      run: |
+        mkdir -p AppDir/usr/{bin,lib}
+        cp binary/OlivedPro_web AppDir/usr/bin/
+        
+        # 复制所需的 libc 和 ld-linux
+        cp /lib/x86_64-linux-gnu/libc.so.6 AppDir/usr/lib/
+        cp /lib64/ld-linux-x86-64.so.2 AppDir/usr/lib/
+        
+    - name: Create custom AppRun
+      run: |
+        # 创建 AppRun 脚本设置库路径
+        cat > AppDir/AppRun << 'EOF'
+        #!/bin/sh
+        # 获取 AppImage 解压后的目录
+        HERE="$(dirname "$(readlink -f "$0")")"
+        # 设置库搜索路径，优先使用应用内嵌的库
+        export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
+        # 防止高版本 libc 检查内核版本（兼容旧系统）
+        export GLIBC_TUNABLES=glibc.rtld.disable_kernel=1
+        # 启动主程序
+        exec "${HERE}/usr/bin/OlivedPro_web" "$@"
+        EOF
+        # 添加执行权限
+        chmod +x AppDir/AppRun
+        
+    - name: Run linuxdeploy to bundle dependencies
+      run: |
+        # 使用 linuxdeploy 收集依赖
+        ./linuxdeploy-x86_64.AppImage \
+          --appdir AppDir \
+          -e AppDir/usr/bin/OlivedPro_web \
+          --exclude-library libc.so.6 \
+          --exclude-library ld-linux-x86-64.so.2
+        
+    - name: Create AppImage
+      run: |
+        mkdir -p ${{ env.OUTPUT_DIR }}
+        ./appimagetool-x86_64.AppImage \
+          AppDir \
+          ${{ env.OUTPUT_DIR }}/${{ env.APP_NAME }}_${{ env.VERSION }}_x86_64.AppImage
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: OlivedPro-AppImage
+        path: ${{ env.OUTPUT_DIR }}/*.AppImage
