@@ -39,16 +39,23 @@ jobs:
     - name: Find and download latest binary
       run: |
         DOWNLOAD_URL=$(curl -sL "https://drive.olived.app/share/661b6145579df/" | \
-          tidy -q -asxml 2>/dev/null | \
-          grep -oP 'href="\K/share/661b6145579df/OlivedPro_web[^"]*_linux_amd64\.zip' | \
+          grep -oP 'href="\K(/share/661b6145579df/OlivedPro_web[^"]*_linux_amd64\.zip)' | \
           head -1 | awk '{print "https://drive.olived.app"$1}')
 
-        echo "Download URL: $DOWNLOAD_URL"
+        # 如果没有找到 URL，则报错并退出
+        if [ -z "$DOWNLOAD_URL" ]; then
+          echo "❌ Failed to find download link"
+          exit 1
+        fi
 
+        echo "✅ Download URL: $DOWNLOAD_URL"
+
+        # 下载并解压二进制文件
         wget "$DOWNLOAD_URL" -O olivedpro.zip
         unzip olivedpro.zip -d binary
         chmod +x binary/OlivedPro_web
 
+        # 获取版本号并设置环境变量
         VERSION=$(basename "$DOWNLOAD_URL" | grep -oP 'OlivedPro_web_\K[0-9.]+')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
