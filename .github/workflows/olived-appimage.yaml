@@ -92,7 +92,14 @@ jobs:
         Categories=Utility;
         EOF
 
-    - name: Run linuxdeploy (minimal deps)
+        curl -L "https://olived.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Folived.6f2fa4b1.webp&w=512&q=100" -o olivedpro.webp
+        ffmpeg -i olivedpro.webp olivedpro.png
+        for size in 16 32 64 128 256 512; do
+          mkdir -p AppDir/usr/share/icons/hicolor/${size}x${size}/apps
+          convert olivedpro.png -resize ${size}x${size} AppDir/usr/share/icons/hicolor/${size}x${size}/apps/olivedpro.png
+        done
+
+    - name: Run linuxdeploy
       run: |
         ./linuxdeploy-x86_64.AppImage \
           --appdir AppDir \
