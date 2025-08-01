@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-appimage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       APP_NAME: OlivedPro
       OUTPUT_DIR: dist
@@ -19,7 +19,7 @@ jobs:
     - name: Set up environment
       run: |
         sudo apt-get update
-        sudo apt-get install -y tidy unzip libwebkit2gtk-4.0 libgtk-3-0
+        sudo apt-get install -y tidy unzip libwebkit2gtk-4.0-38 libgtk-3-0
 
     - name: Cache AppImage tools
       id: cache-appimage-tools
