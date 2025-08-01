@@ -65,11 +65,11 @@ jobs:
 
     - name: Prepare AppDir & AppRun & Desktop File
       run: |
-        mkdir -p AppDir/usr/{bin,lib}
+        mkdir -p AppDir/usr/{bin,lib,lib64}
         mkdir -p AppDir/usr/share/applications
         cp binary/OlivedPro_web AppDir/usr/bin/
         cp /lib/x86_64-linux-gnu/libc.so.6 AppDir/usr/lib/
-        cp /lib64/ld-linux-x86-64.so.2 AppDir/usr/lib/
+        cp /lib64/ld-linux-x86-64.so.2 AppDir/usr/lib64/
 
         cat > AppDir/AppRun << 'EOF'
         #!/bin/sh
