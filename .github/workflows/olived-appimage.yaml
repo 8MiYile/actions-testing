@@ -38,11 +38,11 @@ jobs:
 
     - name: Find and download latest binary
       run: |
-        curl -sL "https://drive.olived.app/share/661b6145579df/" | tidy -q -asxml 2>/dev/null | \
-        grep -oP 'href="\K/share/661b6145579df/OlivedPro_web[^"]*_linux_amd64\.zip' | \
-        head -1 | awk '{print "https://drive.olived.app"$1}' > download_url.txt
+        DOWNLOAD_URL=$(curl -sL "https://drive.olived.app/share/661b6145579df/" | \
+          tidy -q -asxml 2>/dev/null | \
+          grep -oP 'href="\K/share/661b6145579df/OlivedPro_web[^"]*_linux_amd64\.zip' | \
+          head -1 | awk '{print "https://drive.olived.app"$1}')
 
-        DOWNLOAD_URL=$(cat download_url.txt)
         echo "Download URL: $DOWNLOAD_URL"
 
         wget "$DOWNLOAD_URL" -O olivedpro.zip
