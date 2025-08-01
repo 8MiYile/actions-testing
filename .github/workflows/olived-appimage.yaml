@@ -77,14 +77,12 @@ jobs:
         EOF
         chmod +x AppDir/AppRun
 
-    - name: Run linuxdeploy to bundle dependencies
+    - name: Run linuxdeploy (minimal deps)
       run: |
         ./linuxdeploy-x86_64.AppImage \
           --appdir AppDir \
           -e AppDir/usr/bin/OlivedPro_web \
-          --exclude-library libc.so.6 \
-          --exclude-library ld-linux-x86-64.so.2 \
-          --exclude-library libwebkit2gtk-4.0.so.37
+          --exclude-libraries '*' \
 
     - name: Create AppImage
       run: |
