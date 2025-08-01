@@ -62,15 +62,14 @@ jobs:
         VERSION=$(basename "$DOWNLOAD_URL" | grep -oP 'OlivedPro_web_\K[0-9.]+')
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-    - name: Prepare AppDir
+    - name: Prepare AppDir & AppRun & Desktop File
       run: |
         mkdir -p AppDir/usr/{bin,lib}
+        mkdir -p AppDir/usr/share/applications
         cp binary/OlivedPro_web AppDir/usr/bin/
         cp /lib/x86_64-linux-gnu/libc.so.6 AppDir/usr/lib/
         cp /lib64/ld-linux-x86-64.so.2 AppDir/usr/lib/
 
-    - name: Create custom AppRun
-      run: |
         cat > AppDir/AppRun << 'EOF'
         #!/bin/sh
         HERE="$(dirname "$(readlink -f "$0")")"
@@ -79,6 +78,18 @@ jobs:
         exec "${HERE}/usr/bin/OlivedPro_web" "$@"
         EOF
         chmod +x AppDir/AppRun
+        
+        # 生成 desktop 文件
+        cat > AppDir/usr/share/applications/olivedpro.desktop <<EOF
+        [Desktop Entry]
+        Name=OlivedPro
+        Comment=Lightweight Web Control Tool
+        Exec=AppRun
+        Icon=olivedpro
+        Terminal=false
+        Type=Application
+        Categories=Utility;
+        EOF
 
     - name: Run linuxdeploy (minimal deps)
       run: |
