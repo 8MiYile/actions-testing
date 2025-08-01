@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-appimage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       APP_NAME: OlivedPro
       OUTPUT_DIR: dist
@@ -18,6 +18,12 @@ jobs:
     steps:
     - name: Set up environment
       run: |
+        sudo tee /etc/apt/sources.list.d/jammy.sources > /dev/null << 'EOF'
+        Types: deb
+        URIs: http://archive.ubuntu.com/ubuntu
+        Suites: jammy
+        Components: main
+        EOF
         sudo apt-get update
         sudo apt-get install -y tidy unzip libwebkit2gtk-4.0-37 libgtk-3-0 libfuse2 appstream ffmpeg
 
