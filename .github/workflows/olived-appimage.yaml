@@ -1,6 +1,7 @@
 name: Build OlivedPro AppImage
 
 on:
+  push:
   workflow_dispatch:
 
 permissions:
@@ -34,7 +35,7 @@ jobs:
       run: |
         wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
         wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-        wget https://github.com/linuxdeploy/linuxdeploy-plugin-gtk/releases/download/continuous/linuxdeploy-plugin-gtk.sh
+        wget https://github.com/linuxdeploy/linuxdeploy-plugin-gtk/raw/refs/heads/master/linuxdeploy-plugin-gtk.sh
         chmod +x linuxdeploy*.AppImage appimagetool*.AppImage linuxdeploy-plugin-gtk.sh
 
     - name: Find and download latest binary
