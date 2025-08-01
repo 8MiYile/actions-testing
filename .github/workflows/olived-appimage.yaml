@@ -82,7 +82,7 @@ jobs:
         ./linuxdeploy-x86_64.AppImage \
           --appdir AppDir \
           -e AppDir/usr/bin/OlivedPro_web \
-          --exclude-libraries '*' \
+          --exclude-library '*' \
 
     - name: Create AppImage
       run: |
