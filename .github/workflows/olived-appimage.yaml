@@ -19,7 +19,7 @@ jobs:
     - name: Set up environment
       run: |
         sudo apt-get update
-        sudo apt-get install -y tidy unzip libwebkit2gtk-4.0-37 libgtk-3-0 libfuse2 appstream
+        sudo apt-get install -y tidy unzip libwebkit2gtk-4.0-37 libgtk-3-0 libfuse2 appstream ffmpeg
 
     - name: Cache AppImage tools
       id: cache-appimage-tools
